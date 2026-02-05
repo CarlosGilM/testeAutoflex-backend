@@ -98,44 +98,51 @@ public class ProductService {
   }
 
   public List<ProductionSuggestionResponseDTO> getProductionSuggestion() {
-    // Carrega estoque atual de matérias-primas em um Map virtual
+
     Map<Long, Double> currentStock = rawMaterialRepository.listAll()
         .stream()
         .collect(Collectors.toMap(RawMaterial::getCode, RawMaterial::getStockQuantity));
 
-    // Busca produtos ordenados pelo maior valor usando o método do Repository
+    // Busca todos os produtos ordenados
     List<Product> products = repository.listAllOrderedByPriceDesc();
+
+    // Busca todos as composições de uma vez agrupa por ID do Produto.
+    Map<Long, List<ProductComposition>> compositionsMap = compositionRepository.listAll()
+        .stream()
+        .collect(Collectors.groupingBy(c -> c.getProduct().getCode()));
 
     List<ProductionSuggestionResponseDTO> suggestions = new ArrayList<>();
 
-    // Para cada produto, calcula a quantidade máxima possível baseada no estoque
     for (Product product : products) {
-      List<ProductComposition> compositions = compositionRepository.find("product.code = ?1", product.getCode()).list();
+      List<ProductComposition> compositions = compositionsMap.get(product.getCode());
 
-      if (compositions.isEmpty())
+      if (compositions == null || compositions.isEmpty()) {
         continue;
+      }
 
-      // Calcula o limite baseado em cada matéria-prima
-      int maxQuantity = compositions.stream().mapToInt(comp -> {
+      int maxQuantity = Integer.MAX_VALUE;
+      for (ProductComposition comp : compositions) {
         double needed = comp.getQuantityNeeded();
-        if (needed <= 0)
-          return 0;
+
         double available = currentStock.getOrDefault(comp.getRawMaterial().getCode(), 0.0);
-        return (int) (available / needed);
-      })
-          .min()
-          .orElse(0);
+        int possible = (int) (available / needed);
+
+        if (possible < maxQuantity) {
+          maxQuantity = possible;
+        }
+      }
+
+      if (maxQuantity == Integer.MAX_VALUE)
+        maxQuantity = 0;
 
       if (maxQuantity > 0) {
-        // Deduz do estoque virtual para que os próximos produtos considerem o que
-        // restou
+        // Deduz do estoque virtual
         for (ProductComposition comp : compositions) {
           Long rmCode = comp.getRawMaterial().getCode();
           double consumed = comp.getQuantityNeeded() * maxQuantity;
           currentStock.put(rmCode, currentStock.get(rmCode) - consumed);
         }
 
-        // Adiciona à lista de sugestões
         suggestions.add(new ProductionSuggestionResponseDTO(
             product.getCode(),
             product.getName(),

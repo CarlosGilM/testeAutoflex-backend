@@ -1,6 +1,7 @@
 package com.autoflex.inventory.model;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -39,7 +40,7 @@ public class ProductComposition extends PanacheEntityBase {
 
     @NotNull(message = "Quantity needed is required")
     @Positive(message = "Quantity needed must be positive")
-    @JoinColumn(name = "quantity_needed")
+    @Column(name = "quantity_needed")
     private Double quantityNeeded;
 
 }

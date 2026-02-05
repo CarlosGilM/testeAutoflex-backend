@@ -18,7 +18,6 @@ public class ProductCompositionMapper {
                 entity.getProduct().getName(),
                 entity.getRawMaterial().getCode(),
                 entity.getRawMaterial().getName(),
-                entity.getQuantityNeeded()
-        );
+                entity.getQuantityNeeded());
     }
 }
