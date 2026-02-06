@@ -14,6 +14,7 @@ import com.autoflex.inventory.repository.RawMaterialRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import java.util.Map;
 
@@ -54,21 +55,23 @@ public class ProductService {
 
   @Transactional
   public ProductResponseDTO create(ProductRequestDTO dto) {
+    if (dto.compositions() == null || dto.compositions().isEmpty()) {
+      throw new BadRequestException("O produto deve ter no mínimo uma matéria-prima na receita.");
+    }
+
     Product product = mapper.toEntity(dto);
     repository.persist(product);
 
-    if (dto.compositions() != null) {
-      for (ProductCompositionRequestDTO compDto : dto.compositions()) {
-        RawMaterial rm = rawMaterialRepository.findById(compDto.rawMaterialCode());
-        if (rm == null)
-          throw new NotFoundException("Raw Material not found: " + compDto.rawMaterialCode());
+    for (ProductCompositionRequestDTO compDto : dto.compositions()) {
+      RawMaterial rm = rawMaterialRepository.findById(compDto.rawMaterialCode());
+      if (rm == null)
+        throw new NotFoundException("Raw Material not found: " + compDto.rawMaterialCode());
 
-        ProductComposition pc = new ProductComposition();
-        pc.setProduct(product);
-        pc.setRawMaterial(rm);
-        pc.setQuantityNeeded(compDto.quantityNeeded());
-        compositionRepository.persist(pc);
-      }
+      ProductComposition pc = new ProductComposition();
+      pc.setProduct(product);
+      pc.setRawMaterial(rm);
+      pc.setQuantityNeeded(compDto.quantityNeeded());
+      compositionRepository.persist(pc);
     }
 
     List<ProductComposition> comps = compositionRepository.list("product.code", product.getCode());
