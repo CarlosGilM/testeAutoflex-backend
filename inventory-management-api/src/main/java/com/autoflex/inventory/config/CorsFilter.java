@@ -13,20 +13,17 @@ public class CorsFilter implements ContainerResponseFilter {
         public void filter(ContainerRequestContext requestContext,
                         ContainerResponseContext responseContext) throws IOException {
 
-                // Permite EXATAMENTE o seu frontend
+                // Permite QUALQUER origem (IP ou domínio)
                 responseContext.getHeaders().add(
-                                "Access-Control-Allow-Origin", "http://localhost:5173");
+                                "Access-Control-Allow-Origin", "*");
 
-                // Permite credenciais (cookies, headers de auth)
                 responseContext.getHeaders().add(
-                                "Access-Control-Allow-Credentials", "true");
+                                "Access-Control-Allow-Credentials", "false");
 
-                // Permite os cabeçalhos que o navegador pede
                 responseContext.getHeaders().add(
                                 "Access-Control-Allow-Headers",
                                 "origin, content-type, accept, authorization, x-requested-with");
 
-                // Permite os métodos HTTP
                 responseContext.getHeaders().add(
                                 "Access-Control-Allow-Methods",
                                 "GET, POST, PUT, DELETE, OPTIONS, HEAD");

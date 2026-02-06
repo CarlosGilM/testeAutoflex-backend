@@ -97,25 +97,3 @@ INSERT INTO
         quantity_needed
     )
 VALUES (2, 4, 4.0);
-
--- ==================================================================================
--- GABARITO DO TESTE (O que o algoritmo deve retornar)
--- ==================================================================================
--- 1. Prioridade: Bicicleta (R$ 1500)
---    Estoque Aço: 100 / 8 = 12.5 -> 12 un
---    Estoque Borracha: 40 / 2 = 20 -> 20 un
---    Estoque Parafuso: 500 / 10 = 50 -> 50 un
---    LIMITANTE: Aço (12 unidades).
---    -> PRODUZ 12 BICICLETAS.
---
---    Estoque Restante:
---    Aço: 100 - (12*8) = 4kg sobraram
---    Borracha: 40 - (12*2) = 16un sobraram
---    Plástico: 50 (intacto)
---    Parafuso: 500 - (12*10) = 380un sobraram
-
--- 2. Secundário: Patinete (R$ 200)
---    Estoque Aço (Sobra): 4 / 2 = 2 un
---    Estoque Plástico: 50 / 4 = 12.5 -> 12 un
---    LIMITANTE: Aço restante (2 unidades).
---    -> PRODUZ 2 PATINETES.

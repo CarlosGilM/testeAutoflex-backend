@@ -139,7 +139,7 @@ public class ProductService {
         maxQuantity = 0;
 
       if (maxQuantity > 0) {
-        // Deduz do estoque virtual
+        // Tira do estoque virtual
         for (ProductComposition comp : compositions) {
           Long rmCode = comp.getRawMaterial().getCode();
           double consumed = comp.getQuantityNeeded() * maxQuantity;
